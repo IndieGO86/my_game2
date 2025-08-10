@@ -1,8 +1,7 @@
-# app.py
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import db, Player
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
@@ -17,7 +16,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-
 @app.route("/")
 def index():
     player_id = session.get("player_id")
@@ -29,7 +27,6 @@ def index():
             other_players = Player.query.filter(Player.id != player_id).all()
     # show_auth True — показать оверлей логина/регистрации
     return render_template("index.html", player=player, other_players=other_players, show_auth=(player is None))
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -62,7 +59,6 @@ def register():
     name = request.args.get("name", "")
     return render_template("register.html", name=name)
 
-
 @app.route("/login", methods=["POST"])
 def login():
     name = request.form.get("name", "").strip()
@@ -77,12 +73,10 @@ def login():
     session["player_id"] = player.id
     return redirect(url_for("index"))
 
-
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return redirect(url_for("index"))
-
 
 @app.route("/profile")
 def profile():
@@ -95,4 +89,7 @@ def profile():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    debug = os.environ.get("FLASK_DEBUG", "1") == "1"
+    with app.app_context():
+        upgrade()  # применяем миграции при запуске
+    app.run(host="0.0.0.0", port=5000, debug=debug)
