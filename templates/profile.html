@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Личный кабинет</title>
+  <style>
+    body {
+      background: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 2em;
+    }
+
+    .label {
+      color: #aaa;
+      font-size: 0.95em;
+    }
+
+    .value {
+      font-size: 1.2em;
+      margin-bottom: 12px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .inventory {
+      margin-top: 20px;
+    }
+
+    .inventory h2 {
+      font-size: 1.3em;
+      border-bottom: 1px solid #444;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+
+    .inventory ul {
+      list-style-type: square;
+      padding-left: 20px;
+    }
+
+    .inventory li {
+      margin-bottom: 5px;
+    }
+
+    .back-button {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-button a {
+      background: #444;
+      padding: 10px 20px;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .back-button a:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Личный кабинет</h1>
+
+    <div class="card">
+      <div class="stat-row">
+        <span class="label">Имя:</span>
+        <span class="value">{{ player.name }}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="label">Раса:</span>
+        <span class="value">{{ player.race }}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="label">Класс:</span>
+        <span class="value">{{ player.player_class }}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="label">Уровень:</span>
+        <span class="value">{{ player.level or 1 }}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="label">Опыт:</span>
+        <span class="value">{{ player.experience or 0 }}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="label">Победы:</span>
+        <span class="value">{{ player.wins or 0 }}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="label">Поражения:</span>
+        <span class="value">{{ player.losses or 0 }}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="label">Здоровье:</span>
+        <span class="value">{{ player.health }}</span>
+      </div>
+
+      {% if player.energy is not none %}
+      <div class="stat-row">
+        <span class="label">Энергия:</span>
+        <span class="value">{{ player.energy }}</span>
+      </div>
+      {% elif player.mana is not none %}
+      <div class="stat-row">
+        <span class="label">Мана:</span>
+        <span class="value">{{ player.mana }}</span>
+      </div>
+      {% endif %}
+
+      <div class="stat-row">
+        <span class="label">Золото:</span>
+        <span class="value">{{ player.gold }}</span>
+      </div>
+
+      <div class="inventory">
+        <h2>Инвентарь</h2>
+        {% if player.inventory and player.inventory|length > 0 %}
+          <ul>
+            {% for item in player.inventory %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>Инвентарь пуст.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="back-button">
+      <a href="{{ url_for('main') }}">⟵ Вернуться в игру</a>
+    </div>
+  </div>
+
+</body>
+</html>
