@@ -9,15 +9,10 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 # -------------------------------
 # Настройка базы данных
 # -------------------------------
-# Берем URL из окружения или локальную по умолчанию
-db_url = os.environ.get("DATABASE_URL", "postgresql://user:password@db:5432/mygame")
+db_url = "postgresql://user:password@localhost:5432/mygame"  # локальная база
 
-# Если база на Render — добавляем sslmode=require
-if "render.com" in db_url and "sslmode" not in db_url:
-    if "?" in db_url:
-        db_url += "&sslmode=require"
-    else:
-        db_url += "?sslmode=require"
+# # Для Render (закомментировано, для теста)
+# db_url = "postgresql://mlink:0TEJaJvyQHAotf8VluUjhGLTjOPeTT65@dpg-d2caqa0gjchc73fuoqo0-a.frankfurt-postgres.render.com/bdgame2?sslmode=require"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
