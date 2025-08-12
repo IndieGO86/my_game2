@@ -8,10 +8,10 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 # -------------------------------
 # Настройка базы данных
 # -------------------------------
-db_url = "postgresql://user:password@localhost:5432/mygame"  # локальная база
+# db_url = "postgresql://user:password@localhost:5432/mygame"  # локальная база
 
 # # Для Render (закомментировано, для теста)
-# db_url = "postgresql://mlink:0TEJaJvyQHAotf8VluUjhGLTjOPeTT65@dpg-d2caqa0gjchc73fuoqo0-a.frankfurt-postgres.render.com/bdgame2?sslmode=require"
+db_url = "postgresql://mlink:0TEJaJvyQHAotf8VluUjhGLTjOPeTT65@dpg-d2caqa0gjchc73fuoqo0-a.frankfurt-postgres.render.com/bdgame2?sslmode=require"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
