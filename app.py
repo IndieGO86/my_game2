@@ -6,15 +6,28 @@ from flask_migrate import Migrate, upgrade
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 
-# берем URL из окружения (docker-compose) или дефолтно подключаемся к db сервису
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://user:password@db:5432/mygame"
-)
+# -------------------------------
+# Настройка базы данных
+# -------------------------------
+# Берем URL из окружения или локальную по умолчанию
+db_url = os.environ.get("DATABASE_URL", "postgresql://user:password@db:5432/mygame")
+
+# Если база на Render — добавляем sslmode=require
+if "render.com" in db_url and "sslmode" not in db_url:
+    if "?" in db_url:
+        db_url += "&sslmode=require"
+    else:
+        db_url += "?sslmode=require"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# -------------------------------
+# Маршруты
+# -------------------------------
 
 @app.route("/")
 def index():
@@ -25,7 +38,6 @@ def index():
         player = Player.query.get(player_id)
         if player:
             other_players = Player.query.filter(Player.id != player_id).all()
-    # show_auth True — показать оверлей логина/регистрации
     return render_template("index.html", player=player, other_players=other_players, show_auth=(player is None))
 
 @app.route("/register", methods=["GET", "POST"])
@@ -35,7 +47,7 @@ def register():
         race = request.form["race"]
         player_class = request.form["player_class"]
 
-        # базовые параметры
+        # Базовые параметры
         health = 100
         energy = 100 if player_class in ["Воин", "Разбойник"] else None
         mana = 100 if player_class == "Маг" else None
@@ -51,11 +63,9 @@ def register():
         db.session.add(new_player)
         db.session.commit()
 
-        # логиним игрока
         session["player_id"] = new_player.id
         return redirect(url_for("index"))
 
-    # GET: можно передать ?name= заранее (при редиректе из login)
     name = request.args.get("name", "")
     return render_template("register.html", name=name)
 
@@ -67,7 +77,6 @@ def login():
 
     player = Player.query.filter_by(name=name).first()
     if not player:
-        # если не найден — перейти на регистрацию и подставить имя
         return redirect(url_for("register", name=name))
 
     session["player_id"] = player.id
