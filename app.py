@@ -8,10 +8,11 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 # -------------------------------
 # Настройка базы данных
 # -------------------------------
-# db_url = "postgresql://user:password@localhost:5432/mygame"  # локальная база
+# Локальная база (оставляем для разработки)
+# db_url = "postgresql://user:password@localhost:5432/mygame"
 
-# # Для Render (закомментировано, для теста)
-db_url = "postgresql://mlink:0TEJaJvyQHAotf8VluUjhGLTjOPeTT65@dpg-d2caqa0gjchc73fuoqo0-a/bdgame2"
+# Для Render (закомментировано, раскомментируй при деплое)
+db_url = "postgresql://game_2db_user:nVvPQAjTmuKTZ8ZiFXUZSUbk26dClECp@dpg-d2dlg915pdvs73f1bjg0-a.frankfurt-postgres.render.com/game_2db"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -40,7 +41,6 @@ def register():
         race = request.form["race"]
         player_class = request.form["player_class"]
 
-        # Базовые параметры
         health = 100
         energy = 100 if player_class in ["Воин", "Разбойник"] else None
         mana = 100 if player_class == "Маг" else None
