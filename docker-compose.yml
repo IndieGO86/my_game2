@@ -7,6 +7,7 @@ services:
       FLASK_APP: app.py
       FLASK_ENV: development
       DATABASE_URL: postgresql://user:password@db:5432/mygame
+      # DATABASE_URL: postgresql://game_2db_user:nVvPQAjTmuKTZ8ZiFXUZSUbk26dClECp@dpg-d2dlg915pdvs73f1bjg0-a.frankfurt-postgres.render.com/game_2db
     volumes:
       - .:/app
     working_dir: /app
