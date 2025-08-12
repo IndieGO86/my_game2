@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import db, Player
-from flask_migrate import Migrate, upgrade
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
@@ -9,16 +8,15 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 # -------------------------------
 # Настройка базы данных
 # -------------------------------
-# db_url = "postgresql://user:password@localhost:5432/mygame"  # локальная база
+db_url = "postgresql://user:password@localhost:5432/mygame"  # локальная база
 
 # # Для Render (закомментировано, для теста)
-db_url = "postgresql://mlink:0TEJaJvyQHAotf8VluUjhGLTjOPeTT65@dpg-d2caqa0gjchc73fuoqo0-a.frankfurt-postgres.render.com/bdgame2?sslmode=require"
+# db_url = "postgresql://mlink:0TEJaJvyQHAotf8VluUjhGLTjOPeTT65@dpg-d2caqa0gjchc73fuoqo0-a.frankfurt-postgres.render.com/bdgame2?sslmode=require"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
-migrate = Migrate(app, db)
 
 # -------------------------------
 # Маршруты
@@ -95,5 +93,5 @@ def profile():
 if __name__ == "__main__":
     debug = os.environ.get("FLASK_DEBUG", "1") == "1"
     with app.app_context():
-        upgrade()  # применяем миграции при запуске
+        db.create_all()  # создаём таблицы если их нет
     app.run(host="0.0.0.0", port=5000, debug=debug)
