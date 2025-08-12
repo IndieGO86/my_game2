@@ -12,7 +12,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 # db_url = "postgresql://user:password@localhost:5432/mygame"
 
 # Для Render (закомментировано, раскомментируй при деплое)
-db_url = "postgresql://game_2db_user:nVvPQAjTmuKTZ8ZiFXUZSUbk26dClECp@dpg-d2dlg915pdvs73f1bjg0-a.frankfurt-postgres.render.com/game_2db"
+db_url = "postgresql://game_2db_user:nVvPQAjTmuKTZ8ZiFXUZSUbk26dClECp@dpg-d2dlg915pdvs73f1bjg0-a.frankfurt-postgres.render.com:5432/game_2db?sslmode=require"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
