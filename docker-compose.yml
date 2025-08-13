@@ -4,15 +4,9 @@ services:
     ports:
       - "5000:5000"
     environment:
-      FLASK_APP: app.py
-      FLASK_DEBUG: 1
       DATABASE_URL: postgresql://user:password@db:5432/mygame
-      SECRET_KEY: your-secret-key-123
-    volumes:
-      - .:/app
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
   db:
     image: postgres:15
@@ -22,11 +16,8 @@ services:
       POSTGRES_DB: mygame
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d mygame"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    ports:
+      - "5432:5432"
 
 volumes:
   pgdata:
