@@ -8,11 +8,16 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 # -------------------------------
 # Настройка базы данных
 # -------------------------------
-# Локальная база (оставляем для разработки)
-# db_url = "postgresql://user:password@localhost:5432/mygame"
+# Берём URL из переменной окружения или используем локальную базу
+db_url = os.environ.get("DATABASE_URL", "postgresql://user:password@localhost:5432/mygame")
 
-# Для Render (закомментировано, раскомментируй при деплое)
-db_url = "postgresql://game_2db_user:nVvPQAjTmuKTZ8ZiFXUZSUbk26dClECp@dpg-d2dlg915pdvs73f1bjg0-a.frankfurt-postgres.render.com/game_2db"
+# Render иногда отдаёт url вида postgres:// вместо postgresql://
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Render требует sslmode=require
+if "render.com" in db_url and "sslmode" not in db_url:
+    db_url += "?sslmode=require"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -41,6 +46,7 @@ def register():
         race = request.form["race"]
         player_class = request.form["player_class"]
 
+        # базовые параметры
         health = 100
         energy = 100 if player_class in ["Воин", "Разбойник"] else None
         mana = 100 if player_class == "Маг" else None
@@ -93,5 +99,5 @@ def profile():
 if __name__ == "__main__":
     debug = os.environ.get("FLASK_DEBUG", "1") == "1"
     with app.app_context():
-        db.create_all()  # создаём таблицы если их нет
+        db.create_all()  # создаём таблицы, если их нет
     app.run(host="0.0.0.0", port=5000, debug=debug)
