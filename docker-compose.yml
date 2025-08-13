@@ -5,14 +5,14 @@ services:
       - "5000:5000"
     environment:
       FLASK_APP: app.py
-      FLASK_ENV: development
+      FLASK_DEBUG: 1
       DATABASE_URL: postgresql://user:password@db:5432/mygame
+      SECRET_KEY: your-secret-key-123
     volumes:
       - .:/app
-    working_dir: /app
     depends_on:
-      - db
-    command: flask run --host=0.0.0.0
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:15
@@ -22,8 +22,11 @@ services:
       POSTGRES_DB: mygame
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mygame"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:

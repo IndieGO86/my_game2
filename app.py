@@ -3,33 +3,35 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from models import db, Player
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "defaultsecretkey")
+app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 
 # Настройка базы данных
-db_url = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://user:password@db:5432/mygame"  # Локальный URL для Docker
-)
+db_url = os.environ.get("DATABASE_URL", "postgresql://user:password@db:5432/mygame")
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Явная инициализация базы
 db.init_app(app)
+with app.app_context():
+    db.create_all()
+    print("Таблицы успешно созданы или уже существуют")
 
-
-
-# -------------------------------
+# --------------------------------
 # Маршруты
-# -------------------------------
-
+# --------------------------------
 @app.route("/")
 def index():
     player_id = session.get("player_id")
     player = None
     other_players = []
+
     if player_id:
         player = Player.query.get(player_id)
         if player:
             other_players = Player.query.filter(Player.id != player_id).all()
+
     return render_template("index.html", player=player, other_players=other_players, show_auth=(player is None))
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -38,7 +40,7 @@ def register():
         race = request.form["race"]
         player_class = request.form["player_class"]
 
-        # базовые параметры
+        # Базовые параметры
         health = 100
         energy = 100 if player_class in ["Воин", "Разбойник"] else None
         mana = 100 if player_class == "Маг" else None
@@ -51,6 +53,7 @@ def register():
             energy=energy,
             mana=mana
         )
+
         db.session.add(new_player)
         db.session.commit()
 
@@ -59,6 +62,7 @@ def register():
 
     name = request.args.get("name", "")
     return render_template("register.html", name=name)
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -73,10 +77,12 @@ def login():
     session["player_id"] = player.id
     return redirect(url_for("index"))
 
+
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return redirect(url_for("index"))
+
 
 @app.route("/profile")
 def profile():
@@ -89,7 +95,6 @@ def profile():
 
 
 if __name__ == "__main__":
-    debug = os.environ.get("FLASK_DEBUG", "1") == "1"
     with app.app_context():
-        db.create_all()  # создаём таблицы, если их нет
-    app.run(host="0.0.0.0", port=5000, debug=debug)
+        db.create_all()  # создаём таблицы в базе, если их нет
+    app.run(host="0.0.0.0", port=5000, debug=True)
