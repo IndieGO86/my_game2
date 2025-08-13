@@ -21,7 +21,7 @@ class Player(db.Model):
     mana = db.Column(db.Integer, nullable=True)
     gold = db.Column(db.Integer, default=0)
 
-    inventory = db.Column(JSON, default=list)
+    inventory = db.Column(JSON, default=list)  # Для работы JSON нужна psycopg2-binary
 
     def __repr__(self):
         return f"<Player {self.name}>"
