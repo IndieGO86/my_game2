@@ -1,32 +1,29 @@
-version: '3.8'
-
 services:
   web:
     build: .
     ports:
       - "5000:5000"
     environment:
-      FLASK_APP: "app.py"
-      FLASK_DEBUG: "1"
-      DATABASE_URL: "postgresql://user:password@db:5432/mygame"
-      SECRET_KEY: "localsecretkey"
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      DATABASE_URL: postgresql://user:password@db:5432/mygame
     volumes:
       - .:/app
+    working_dir: /app
     depends_on:
       - db
-    restart: unless-stopped
+    command: flask run --host=0.0.0.0
 
   db:
     image: postgres:15
     environment:
-      POSTGRES_USER: "user"
-      POSTGRES_PASSWORD: "password"
-      POSTGRES_DB: "mygame"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mygame
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    restart: unless-stopped
 
 volumes:
   pgdata:
