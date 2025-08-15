@@ -16,6 +16,7 @@ services:
       POSTGRES_DB: mygame
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./static/avatars:/app/static/avatars  # Сохраняет файлы после перезапуска
     ports:
       - "5432:5432"
 

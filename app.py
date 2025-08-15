@@ -1,6 +1,11 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import db, Player
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'static/avatars'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
@@ -93,6 +98,30 @@ def profile():
     player = Player.query.get(player_id)
     return render_template("profile.html", player=player)
 
+
+
+
+@app.route('/profile', methods=['POST'])
+def upload_avatar():
+    if 'avatar' not in request.files:
+        return redirect(url_for('profile'))
+    
+    file = request.files['avatar']
+    if file.filename == '':
+        return redirect(url_for('profile'))
+    
+    if file and file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        try:
+            filename = secure_filename(f"player_{session['player_id']}.png")
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            
+            player = Player.query.get(session['player_id'])
+            player.avatar_url = filename
+            db.session.commit()
+        except Exception as e:
+            print(f"Ошибка загрузки: {e}")  # Логируем ошибку, но не мешаем работе
+    
+    return redirect(url_for('profile'))
 
 if __name__ == "__main__":
     with app.app_context():

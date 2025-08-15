@@ -10,20 +10,32 @@
     .field { flex:1; min-height:500px; background:#2a2a2a; border-radius:12px; display:flex; justify-content:center; align-items:center; color:#888; }
     .card { background:#1e1e1e; padding:16px; border-radius:10px; box-shadow:0 0 12px rgba(0,0,0,0.6); }
     .avatar { position:fixed; top:10px; left:10px; background:#1e1e1e; padding:10px; border-radius:8px; z-index:100; }
+    .avatar img {
+      border: 2px solid #f4c542;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      }
     .logout-form { margin-top:8px; }
     a { color:#78c7ff; text-decoration:none; }
+    
   </style>
 </head>
 <body>
 
   {% if player %}
-    <div class="avatar">
-      <strong>{{ player.name }}</strong><br>
-      <small>{{ player.race }} — {{ player.player_class }}</small>
-      <form class="logout-form" method="post" action="{{ url_for('logout') }}">
-        <button type="submit">Выйти</button>
-      </form>
+  <div class="avatar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <!-- Добавляем аватар перед именем -->
+      <img src="{{ url_for('static', filename='avatars/' + (player.avatar_url if player.avatar_url else 'default.png')) }}"
+          style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+      <div>
+        <strong>{{ player.name }}</strong><br>
+        <small>{{ player.race }} — {{ player.player_class }}</small>
+      </div>
     </div>
+    <form class="logout-form" method="post" action="{{ url_for('logout') }}">
+      <button type="submit">Выйти</button>
+    </form>
+  </div>
   {% endif %}
 
   {% if player %}

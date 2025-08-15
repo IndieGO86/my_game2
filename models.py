@@ -10,6 +10,7 @@ class Player(db.Model):
     name = db.Column(db.String(50), nullable=False, unique=True)
     race = db.Column(db.String(50), nullable=False)
     player_class = db.Column(db.String(50), nullable=False)
+    avatar_url = db.Column(db.String(200), default='default.png') 
 
     level = db.Column(db.Integer, default=1)
     experience = db.Column(db.Integer, default=0)
