@@ -1,4 +1,3 @@
-# models.py
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSON
 
@@ -11,7 +10,11 @@ class Player(db.Model):
     race = db.Column(db.String(50), nullable=False)
     player_class = db.Column(db.String(50), nullable=False)
     avatar_url = db.Column(db.String(200), default='default.png') 
-
+   
+    bio = db.Column(db.Text, nullable=True)
+    theme_color = db.Column(db.String(7), default='#1e1e1e')
+    card_style = db.Column(db.String(50), default='default')
+    
     level = db.Column(db.Integer, default=1)
     experience = db.Column(db.Integer, default=0)
     wins = db.Column(db.Integer, default=0)
@@ -23,6 +26,6 @@ class Player(db.Model):
     gold = db.Column(db.Integer, default=0)
 
     inventory = db.Column(JSON, default=list)
-
+   
     def __repr__(self):
         return f"<Player {self.name}>"
