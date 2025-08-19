@@ -67,9 +67,23 @@
 <body>
     <div class="form-container">
         <h1>Создать нового игрока</h1>
+
         <form method="POST">
             <label for="name">Имя:</label>
             <input type="text" name="name" id="name" required>
+
+            <label for="password">Пароль:</label>
+            <div style="display:flex; align-items:center; gap:5px;">
+                <input type="password" name="password" id="password" required style="flex:1;">
+                <button type="button" onclick="togglePassword()" style="padding:6px;">👁</button>
+            </div>
+
+            <script>
+            function togglePassword() {
+            const field = document.getElementById("password");
+            field.type = field.type === "password" ? "text" : "password";
+            }
+            </script>
 
             <label for="race">Раса:</label>
             <select name="race" id="race" required>
