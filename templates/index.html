@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <title>Игра</title>
   <style>
+    /* Основной стиль страницы */
     body { 
       background:#121212; 
       color:#eee; 
@@ -11,58 +12,74 @@
       margin:0; 
       padding:20px;
     }
-    
+
+    /* Контейнер для основной игры: левый блок, поле и правый блок */
     .layout { 
       display:flex; 
-      gap:20px; 
+      gap:20px; /* Расстояние между колонками */
     }
-    
+
+    /* Ширина боковых колонок */
     .left, .right { 
       width:280px; 
     }
-    
+
+    /* Центральное игровое поле */
     .field { 
       flex:1; 
       min-height:500px; 
       background:#2a2a2a; 
       border-radius:12px; 
       display:flex; 
-      justify-content:center; 
-      align-items:center; 
+      justify-content:center; /* Центрируем содержимое по горизонтали */
+      align-items:center;     /* Центрируем по вертикали */
       color:#888; 
+      text-align:center;      /* Текст внутри блока по центру */
     }
-    
+
+    /* Карточки информации */
     .card { 
       background:#1e1e1e; 
       padding:16px; 
       border-radius:10px; 
       box-shadow:0 0 12px rgba(0,0,0,0.6); 
     }
-    
+
+    /* ------------------------------
+       Аватар игрока
+       - Не fixed, чтобы не перекрывал другие блоки
+       - Внутри левой колонки
+       ------------------------------ */
     .avatar { 
-      position:fixed; 
-      top:10px; 
-      left:10px; 
+      display:flex;        
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;     /* отделяем от карточки */
       background:#1e1e1e; 
       padding:10px; 
       border-radius:8px; 
-      z-index:100; 
     }
-    
+
+    /* Картинка аватара */
     .avatar img {
+      width:40px;
+      height:40px;
+      border-radius:50%;      /* Круглая форма */
+      object-fit:cover;       /* Заполнение картинки без искажения */
       border: 2px solid #f4c542;
       box-shadow: 0 0 5px rgba(220, 55, 55, 0.3);
     }
-    
+
+    /* Форма выхода */
     .logout-form { 
       margin-top:8px; 
     }
-    
+
     a { 
       color:#78c7ff; 
       text-decoration:none; 
     }
-    
+
     /* Стили для карточек */
     .card.default {
       border: 2px solid #444;
@@ -81,6 +98,7 @@
       color: #5c2e0d;
     }
 
+    /* Flash-сообщения */
     .flash {
       margin-bottom:8px;
       padding:10px;
@@ -90,10 +108,14 @@
     }
     .flash.error { background:red; }
     .flash.success { background:green; }
+
   </style>
 </head>
 <body>
-    <!-- Сообщения flash -->
+
+  <!-- -----------------------
+       Flash-сообщения
+       ----------------------- -->
   {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
       {% for category, message in messages %}
@@ -105,27 +127,24 @@
   {% endwith %}
 
   {% if player %}
-  <div class="avatar">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="{{ url_for('static', filename='avatars/' + (player.avatar_url if player.avatar_url else 'default.png')) }}"
-          style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-      <div>
-        <strong>{{ player.name }}</strong><br>
-        <small>{{ player.race }} — {{ player.player_class }}</small>
-      </div>
-    
-    </div>
-    <form class="logout-form" method="post" action="{{ url_for('logout') }}">
-      <button type="submit">Выйти</button>
-    </form>
-  </div>
-  {% endif %}
-
-  {% if player %}
     <h1>ИГРА</h1>
     <div class="layout">
 
+      <!-- -----------------------
+           Левая колонка: аватар + карточка игрока
+           ----------------------- -->
       <div class="left">
+
+        <!-- Аватар игрока -->
+        <div class="avatar">
+          <img src="{{ url_for('static', filename='avatars/' + (player.avatar_url if player.avatar_url else 'default.png')) }}">
+          <div>
+            <strong>{{ player.name }}</strong><br>
+            <small>{{ player.race }} — {{ player.player_class }}</small>
+          </div>
+        </div>
+
+        <!-- Карточка игрока -->
         <div class="card {{ player.card_style }}" 
              style="--bg-color: {{ player.theme_color }}; background-color: var(--bg-color);">
           <h3>{{ player.name }}</h3>
@@ -139,17 +158,29 @@
             <div>Мана: {{ player.mana }}</div>
           {% endif %}
           {% if player.bio %}
-          <div style="margin-top:10px; padding:8px; background:rgba(0,0,0,0.3); border-radius:6px;">
-            {{ player.bio }}
-          </div>
+            <div style="margin-top:10px; padding:8px; background:rgba(0,0,0,0.3); border-radius:6px;">
+              {{ player.bio }}
+            </div>
           {% endif %}
           <div>Золото: {{ player.gold }}</div>
           <div style="margin-top:10px;"><a href="{{ url_for('profile') }}">Личный кабинет</a></div>
+
+          <!-- Форма выхода -->
+          <form class="logout-form" method="post" action="{{ url_for('logout') }}">
+            <button type="submit">Выйти</button>
+          </form>
         </div>
+
       </div>
 
+      <!-- -----------------------
+           Центральное игровое поле
+           ----------------------- -->
       <div class="field">Игровое поле</div>
 
+      <!-- -----------------------
+           Правая колонка: другие игроки
+           ----------------------- -->
       <div class="right">
         <div class="card">
           <h3>Другие игроки</h3>
@@ -163,13 +194,15 @@
           {% endfor %}
         </div>
       </div>
-    </div>
+
+    </div> <!-- /.layout -->
 
   {% elif show_auth %}
-    <!-- Оверлей входа/регистрации -->
+    <!-- -----------------------
+         Оверлей входа/регистрации
+         ----------------------- -->
     <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); display:flex; align-items:center; justify-content:center; z-index:999;">
       <div class="card" style="width:320px;">
-        
         <h3 style="text-align:center;">Вход в игру</h3>
 
         <form method="post" action="{{ url_for('login') }}">
@@ -180,12 +213,13 @@
           </div>
           <button style="width:100%; padding:8px; margin-top:10px;">Войти</button>
         </form>
-          <script>
-            function toggleLoginPassword() {
-              const field = document.getElementById("login-password");
-              field.type = field.type === "password" ? "text" : "password";
+
+        <script>
+          function toggleLoginPassword() {
+            const field = document.getElementById("login-password");
+            field.type = field.type === "password" ? "text" : "password";
           }
-          </script>
+        </script>
 
         <div style="text-align:center; margin-top:10px;">
           Новый игрок? <a href="{{ url_for('register') }}">Создать</a>
