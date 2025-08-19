@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 
 # Создаем экземпляры без привязки к приложению
@@ -18,6 +19,7 @@ class Player(db.Model):
     __tablename__ = "player"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
+    password_hash = db.Column(db.Text, nullable=False)
     race = db.Column(db.String(50), nullable=False)
     player_class = db.Column(db.String(50), nullable=False)
     avatar_url = db.Column(db.String(200), default='default.png') 
@@ -55,13 +57,30 @@ def index():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form['name']
+        name = request.form['name'].strip()
+        password = request.form['password'].strip()
         race = request.form['race']
         player_class = request.form['player_class']
+
+        # Проверка: игрок уже существует?
+        existing_player = Player.query.filter_by(name=name).first()
+        if existing_player:
+            flash("Игрок с таким именем уже существует!", "error")
+            return redirect(url_for("register"))
+
+        # Проверка пароля
+        if len(password) < 6:
+            flash("Пароль должен содержать минимум 6 символов!", "error")
+            return redirect(url_for("register"))
+        
+        
+        # Хэшируем пароль
+        hashed_password = generate_password_hash(password)
         
         new_player = Player(
             name=name,
             race=race,
+            password_hash=hashed_password,
             player_class=player_class,
             health=100
         )
@@ -75,6 +94,7 @@ def register():
         db.session.commit()
         
         session['player_id'] = new_player.id
+        flash("Регистрация успешна, вы вошли в игру!", "success")
         return redirect(url_for('index'))
     
     return render_template("register.html")
@@ -82,12 +102,15 @@ def register():
 @app.route("/login", methods=['POST'])
 def login():
     name = request.form['name']
+    password = request.form['password'].strip()
+    
     player = Player.query.filter_by(name=name).first()
     
-    if player:
+    if player and check_password_hash(player.password_hash, password):
         session['player_id'] = player.id
+        flash("Успешный вход!", "success")
     else:
-        flash('Игрок с таким именем не найден', 'error')
+        flash("Неверный логин или пароль", "error")
     
     return redirect(url_for('index'))
 
