@@ -51,7 +51,7 @@
     
     .avatar img {
       border: 2px solid #f4c542;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      box-shadow: 0 0 5px rgba(220, 55, 55, 0.3);
     }
     
     .logout-form { 
@@ -80,9 +80,29 @@
       background-image: linear-gradient(to bottom right, #f5f5dc, #e6d9b8);
       color: #5c2e0d;
     }
+
+    .flash {
+      margin-bottom:8px;
+      padding:10px;
+      border-radius:6px;
+      font-weight:bold;
+      color:#fff;
+    }
+    .flash.error { background:red; }
+    .flash.success { background:green; }
   </style>
 </head>
 <body>
+    <!-- Сообщения flash -->
+  {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
   {% if player %}
   <div class="avatar">
@@ -93,6 +113,7 @@
         <strong>{{ player.name }}</strong><br>
         <small>{{ player.race }} — {{ player.player_class }}</small>
       </div>
+    
     </div>
     <form class="logout-form" method="post" action="{{ url_for('logout') }}">
       <button type="submit">Выйти</button>
@@ -103,6 +124,7 @@
   {% if player %}
     <h1>ИГРА</h1>
     <div class="layout">
+
       <div class="left">
         <div class="card {{ player.card_style }}" 
              style="--bg-color: {{ player.theme_color }}; background-color: var(--bg-color);">
@@ -147,11 +169,24 @@
     <!-- Оверлей входа/регистрации -->
     <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); display:flex; align-items:center; justify-content:center; z-index:999;">
       <div class="card" style="width:320px;">
+        
         <h3 style="text-align:center;">Вход в игру</h3>
+
         <form method="post" action="{{ url_for('login') }}">
           <input name="name" placeholder="Введите имя" required style="width:100%; padding:8px; margin-bottom:10px;">
-          <button style="width:100%; padding:8px;">Войти</button>
+          <div style="display:flex; gap:5px;">
+            <input type="password" name="password" id="login-password" placeholder="Введите пароль" required style="flex:1; padding:8px;">
+            <button type="button" onclick="toggleLoginPassword()" style="padding:8px;">👁</button>
+          </div>
+          <button style="width:100%; padding:8px; margin-top:10px;">Войти</button>
         </form>
+          <script>
+            function toggleLoginPassword() {
+              const field = document.getElementById("login-password");
+              field.type = field.type === "password" ? "text" : "password";
+          }
+          </script>
+
         <div style="text-align:center; margin-top:10px;">
           Новый игрок? <a href="{{ url_for('register') }}">Создать</a>
         </div>
