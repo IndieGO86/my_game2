@@ -4,7 +4,6 @@
   <meta charset="UTF-8"/>
   <title>Игра</title>
   <style>
-    /* Основной стиль страницы */
     body { 
       background:#121212; 
       color:#eee; 
@@ -13,31 +12,27 @@
       padding:20px;
     }
 
-    /* Контейнер для основной игры: левый блок, поле и правый блок */
     .layout { 
       display:flex; 
-      gap:20px; /* Расстояние между колонками */
+      gap:20px;
     }
 
-    /* Ширина боковых колонок */
     .left, .right { 
       width:280px; 
     }
 
-    /* Центральное игровое поле */
     .field { 
       flex:1; 
       min-height:500px; 
       background:#2a2a2a; 
       border-radius:12px; 
       display:flex; 
-      justify-content:center; /* Центрируем содержимое по горизонтали */
-      align-items:center;     /* Центрируем по вертикали */
+      justify-content:center;
+      align-items:center;
       color:#888; 
-      text-align:center;      /* Текст внутри блока по центру */
+      text-align:center;
     }
 
-    /* Карточки информации */
     .card { 
       background:#1e1e1e; 
       padding:16px; 
@@ -45,32 +40,25 @@
       box-shadow:0 0 12px rgba(0,0,0,0.6); 
     }
 
-    /* ------------------------------
-       Аватар игрока
-       - Не fixed, чтобы не перекрывал другие блоки
-       - Внутри левой колонки
-       ------------------------------ */
     .avatar { 
       display:flex;        
       align-items:center;
       gap:10px;
-      margin-bottom:10px;     /* отделяем от карточки */
+      margin-bottom:10px;
       background:#1e1e1e; 
       padding:10px; 
       border-radius:8px; 
     }
 
-    /* Картинка аватара */
     .avatar img {
       width:40px;
       height:40px;
-      border-radius:50%;      /* Круглая форма */
-      object-fit:cover;       /* Заполнение картинки без искажения */
+      border-radius:50%;
+      object-fit:cover;
       border: 2px solid #f4c542;
       box-shadow: 0 0 5px rgba(220, 55, 55, 0.3);
     }
 
-    /* Форма выхода */
     .logout-form { 
       margin-top:8px; 
     }
@@ -80,7 +68,6 @@
       text-decoration:none; 
     }
 
-    /* Стили для карточек */
     .card.default {
       border: 2px solid #444;
       box-shadow: 0 0 12px rgba(0,0,0,0.6);
@@ -98,46 +85,58 @@
       color: #5c2e0d;
     }
 
-    /* Flash-сообщения */
-    .flash {
-      margin-bottom:8px;
-      padding:10px;
-      border-radius:6px;
-      font-weight:bold;
-      color:#fff;
+    /* -----------------
+       Flash overlay
+       ----------------- */
+    #flash-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      background: rgba(0,0,0,0.6);
     }
-    .flash.error { background:red; }
-    .flash.success { background:green; }
 
+    .flash {
+      padding: 20px 30px;
+      border-radius: 10px;
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #fff;
+      background: #e74c3c;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .flash.success { background:#27ae60; }
   </style>
 </head>
 <body>
 
-  <!-- -----------------------
-       Flash-сообщения
-       ----------------------- -->
+  <!-- Flash overlay -->
   {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">
-          {{ message }}
-        </div>
-      {% endfor %}
+      <div id="flash-overlay">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+      <script>
+        setTimeout(() => {
+          const overlay = document.getElementById("flash-overlay");
+          if (overlay) overlay.style.display = "none";
+        }, 3000);
+      </script>
     {% endif %}
   {% endwith %}
 
   {% if player %}
     <h1>ИГРА</h1>
     <div class="layout">
-
-      
-
-      <!-- -----------------------
-           Левая колонка: аватар + карточка игрока
-           ----------------------- -->
       <div class="left">
-
-        <!-- Аватар игрока -->
         <div class="avatar">
           <img src="{{ url_for('static', filename='avatars/' + (player.avatar_url if player.avatar_url else 'default.png')) }}">
           <div>
@@ -146,7 +145,6 @@
           </div>
         </div>
 
-        <!-- Карточка игрока -->
         <div class="card {{ player.card_style }}" 
              style="--bg-color: {{ player.theme_color }}; background-color: var(--bg-color);">
           <h3>{{ player.name }}</h3>
@@ -167,22 +165,14 @@
           <div>Золото: {{ player.gold }}</div>
           <div style="margin-top:10px;"><a href="{{ url_for('profile') }}">Личный кабинет</a></div>
 
-          <!-- Форма выхода -->
           <form class="logout-form" method="post" action="{{ url_for('logout') }}">
             <button type="submit">Выйти</button>
           </form>
         </div>
-
       </div>
 
-      <!-- -----------------------
-           Центральное игровое поле
-           ----------------------- -->
       <div class="field">Игровое поле</div>
 
-      <!-- -----------------------
-           Правая колонка: другие игроки
-           ----------------------- -->
       <div class="right">
         <div class="card">
           <h3>Другие игроки</h3>
@@ -196,13 +186,9 @@
           {% endfor %}
         </div>
       </div>
-
-    </div> <!-- /.layout -->
+    </div>
 
   {% elif show_auth %}
-    <!-- -----------------------
-         Оверлей входа/регистрации
-         ----------------------- -->
     <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); display:flex; align-items:center; justify-content:center; z-index:999;">
       <div class="card" style="width:320px;">
         <h3 style="text-align:center;">Вход в игру</h3>
